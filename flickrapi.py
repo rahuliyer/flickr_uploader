@@ -2,6 +2,8 @@
 
 import auth
 
+import json
+
 class FlickrApi:
 	def __init__(self, auth):
 		self.auth = auth
@@ -27,3 +29,11 @@ class FlickrApi:
 	def createAuthenticatedRestPostRequest(self, method, args):
 		self.addApiArgs(method, args)
 		return self.auth.createOauthPostRequest("http://api.flickr.com/services/rest", args)
+
+	@staticmethod
+	def isSuccessfulResponse(response):
+		res = json.loads(response)
+		if res["stat"] != "ok":
+			return false
+
+		return True
