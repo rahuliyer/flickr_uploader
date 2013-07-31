@@ -16,19 +16,23 @@ class FlickrApi:
 
 	def createRestGetRequest(self, method, args):
 		self.addApiArgs(method, args)
-		return self.auth.createGetRequest("http://api.flickr.com/services/rest", args)
+		return self.auth.createGetRequest("http://api.flickr.com/services/rest",
+			args)
 
 	def createRestPostRequest(self, method, args):
 		self.addApiArgs(method, args)
-		return self.auth.createPostRequest("http://api.flickr.com/services/rest", args)
+		return self.auth.createPostRequest(
+			"http://api.flickr.com/services/rest", args)
 
 	def createAuthenticatedRestGetRequest(self, method, args):
 		self.addApiArgs(method, args)
-		return self.auth.createOauthGetRequest("http://api.flickr.com/services/rest", args)
+		return self.auth.createOauthGetRequest(
+			"http://api.flickr.com/services/rest", args)
 
 	def createAuthenticatedRestPostRequest(self, method, args):
 		self.addApiArgs(method, args)
-		return self.auth.createOauthPostRequest("http://api.flickr.com/services/rest", args)
+		return self.auth.createOauthPostRequest(
+			"http://api.flickr.com/services/rest", args)
 
 	@staticmethod
 	def isSuccessfulResponse(response):

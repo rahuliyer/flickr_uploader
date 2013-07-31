@@ -18,7 +18,11 @@ class Auth:
 	def __init__(self, app_id, app_secret):
 		self.appId = app_id
 		self.appSecret = app_secret
-		self.oauth = oauth.OAuth(app_id, app_secret, REQUEST_TOKEN_URL, ACCESS_TOKEN_URL, self.authorizeCb)
+		self.oauth = oauth.OAuth(app_id,
+			app_secret, 
+			REQUEST_TOKEN_URL, 
+			ACCESS_TOKEN_URL, 
+			self.authorizeCb)
 
 	def authorizeCb(self, request_token):
 		url = AUTHORIZE_URL + "?oauth_token=" + request_token
@@ -36,7 +40,8 @@ class Auth:
 			self.oauth.setCredentials(creds["token"], creds["secret"])
 		else:
 			self.oauth.authenticate()
-			self.writeToken(self.oauth.getAccessToken(), self.oauth.getAccessTokenSecret())
+			self.writeToken(self.oauth.getAccessToken(), 
+				self.oauth.getAccessTokenSecret())
 		print self.oauth.getAccessToken()
 		print self.oauth.getAccessTokenSecret()
 
@@ -50,10 +55,18 @@ class Auth:
 		return urllib2.Request(url, urllib.urlencode(params))
 		
 	def createOauthGetRequest(self, url, params):
-		return self.oauth.createOauthRequest("GET", url, params, self.oauth.getAccessToken(), self.oauth.getAccessTokenSecret())
+		return self.oauth.createOauthRequest("GET", 
+			url, 
+			params, 
+			self.oauth.getAccessToken(), 
+			self.oauth.getAccessTokenSecret())
 			
 	def createOauthPostRequest(self, url, params):
-		return self.oauth.createOauthRequest("POST", url, params, self.oauth.getAccessToken(), self.oauth.getAccessTokenSecret())
+		return self.oauth.createOauthRequest("POST",
+			url, 
+			params, 
+			self.oauth.getAccessToken(), 
+			self.oauth.getAccessTokenSecret())
 			
 	def writeToken(self, token, token_secret):
 		d = { "token": token, "secret": token_secret }

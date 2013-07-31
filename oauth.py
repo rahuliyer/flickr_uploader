@@ -14,7 +14,12 @@ import urlparse
 import random
 
 class OAuth:
-	def __init__(self, app_id, app_secret, req_token_url, access_token_url, authorize_cb):
+	def __init__(self, 
+			app_id, 
+			app_secret, 
+			req_token_url, 
+			access_token_url, 
+			authorize_cb):
 		self.appId = app_id
 		self.appSecret = app_secret
 		self.requestTokenUrl = req_token_url
@@ -51,7 +56,11 @@ class OAuth:
 	def fetchAccessToken(self):
 		url = self.accessTokenUrl
 		params = {"oauth_verifier": self.authVerifier}
-		request = self.createOauthRequest("GET", url, params, self.requestToken, self.requestTokenSecret)
+		request = self.createOauthRequest("GET", 
+			url, 
+			params, 
+			self.requestToken, 
+			self.requestTokenSecret)
 		handler = urllib2.urlopen(request)
 		res = urlparse.parse_qs(handler.read())
 		self.accessToken = res["oauth_token"][0]
@@ -83,7 +92,11 @@ class OAuth:
 		params["oauth_consumer_key"] = self.appId
 		params["oauth_version"] = "1.0"
 		params["oauth_signature_method"] = "HMAC-SHA1"
-		params["oauth_signature"] = self.getRequestSignature(method, url, params, token_secret)
+		params["oauth_signature"] = self.getRequestSignature(
+			method, 
+			url, 
+			params, 
+			token_secret)
 
 	def getRequestSignature(self, method, url, params, token_secret = ""):
 		base_str = method + "&" + urllib.quote_plus(url) + "&"
