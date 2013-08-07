@@ -9,8 +9,8 @@ class Photosets:
 		self.flickrapi = flickrapi.FlickrApi(auth)
 			
 	def createGetListRequest(self):
-		return self.flickrapi.createAuthenticatedRestGetRequest(
-			"flickr.photosets.getList", {});
+		return self.flickrapi.createRestGetRequest(
+			"flickr.photosets.getList", {}, True);
 
 	def getPhotosetNames(self, response):
 		if not flickrapi.FlickrApi.isSuccessfulResponse(response):
@@ -24,10 +24,10 @@ class Photosets:
 		return names
 		
 	def createNewSetRequest(self, name, description, primary_photo_id):
-		return self.flickrapi.createAuthenticatedRestPostRequest(
+		return self.flickrapi.createRestPostRequest(
 			"flickr.photosets.create", {"title": name, 
 				"description": description, 
-				"primary_photo_id": primary_photo_id})	
+				"primary_photo_id": primary_photo_id}, True)	
 
 	def getPhotosetIdFromResult(self, response):
 		if not flickrapi.FlickrApi.isSuccessfulResponse(response):
@@ -38,7 +38,13 @@ class Photosets:
 		return res["photoset"]["id"]
 	
 	def createAddPhotoRequest(self, photo_id, set_id):
-		return self.flickrapi.createAuthenticatedRestPostRequest(
+		return self.flickrapi.createRestPostRequest(
 			"flickr.photosets.addPhoto", 
-			{"photoset_id":	set_id, "photo_id": photo_id})
-	
+			{"photoset_id":	set_id, "photo_id": photo_id},
+			True)
+
+	def createPhotosetDeleteRequest(self, set_id):
+		return self.flickrapi.createRestPostRequest(
+			"flickr.photosets.delete",
+			{"photoset_id": set_id},
+			True)

@@ -48,26 +48,14 @@ class Auth:
 	def getAppId(self):
 		return self.appId
 
-	def createGetRequest(self, url, params):
-		return urllib2.Request(url + "?" + urllib.urlencode(params))
-		
-	def createPostRequest(self, url, params):
-		return urllib2.Request(url, urllib.urlencode(params))
-		
-	def createOauthGetRequest(self, url, params):
-		return self.oauth.createOauthRequest("GET", 
-			url, 
-			params, 
-			self.oauth.getAccessToken(), 
+	def signRequest(self, request):
+		params = request.getParams()
+		self.oauth.addOauthParams(request.getMethod(), 
+			request.getUrl(),
+			params,
+			self.oauth.getAccessToken(),
 			self.oauth.getAccessTokenSecret())
-			
-	def createOauthPostRequest(self, url, params):
-		return self.oauth.createOauthRequest("POST",
-			url, 
-			params, 
-			self.oauth.getAccessToken(), 
-			self.oauth.getAccessTokenSecret())
-			
+
 	def writeToken(self, token, token_secret):
 		d = { "token": token, "secret": token_secret }
 		serialized_str = json.dumps(d)

@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 import auth
+from httpgetrequest import HttpGetRequest
+from httppostrequest import HttpPostRequest
 
 import json
 
@@ -14,30 +16,31 @@ class FlickrApi:
 		args["nojsoncallback"] = 1
 		args["api_key"] = self.auth.getAppId()
 
-	def createRestGetRequest(self, method, args):
+	def createRestGetRequest(self, method, args, sign = False):
 		self.addApiArgs(method, args)
-		return self.auth.createGetRequest("http://api.flickr.com/services/rest",
-			args)
+		req = HttpGetRequest("http://api.flickr.com/services/rest",
+			args,
+			self.auth)
 
-	def createRestPostRequest(self, method, args):
-		self.addApiArgs(method, args)
-		return self.auth.createPostRequest(
-			"http://api.flickr.com/services/rest", args)
+		if sign:
+			return req.getSignedRequest()
+		else:
+			return req.getRequest()
 
-	def createAuthenticatedRestGetRequest(self, method, args):
+	def createRestPostRequest(self, method, args, sign = False):
 		self.addApiArgs(method, args)
-		return self.auth.createOauthGetRequest(
-			"http://api.flickr.com/services/rest", args)
-
-	def createAuthenticatedRestPostRequest(self, method, args):
-		self.addApiArgs(method, args)
-		return self.auth.createOauthPostRequest(
-			"http://api.flickr.com/services/rest", args)
+		req = HttpPostRequest("http://api.flickr.com/services/rest",
+			args,
+			self.auth)
+		if sign:
+			return req.getSignedRequest()
+		else:
+			return req.getRequest()
 
 	@staticmethod
 	def isSuccessfulResponse(response):
 		res = json.loads(response)
 		if res["stat"] != "ok":
-			return false
+			return False
 
 		return True

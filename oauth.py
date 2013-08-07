@@ -13,6 +13,8 @@ import urllib2
 import urlparse
 import random
 
+import httpgetrequest
+
 class OAuth:
 	def __init__(self, 
 			app_id, 
@@ -103,7 +105,7 @@ class OAuth:
 
 		param_str = ""
 		for i in sorted(params.keys()):
-			param_str += i + "=" + str(params[i]).replace(" ", "+") + "&"
+			param_str += i + "=" + str(params[i]).replace(" ", "%20") + "&"
 
 		param_str = urllib.quote_plus(param_str[:-1])
 		base_str += param_str
