@@ -7,59 +7,74 @@ from photosets import Photosets
 from flickrapi import FlickrApi
 from httpmultipart import HttpMultipartRequest
 from uploader import Uploader
+from photos import Photos
 
 def execute(request, test_case):
-	handle = urllib2.urlopen(request)
-	response = handle.read()
-	if not FlickrApi.isSuccessfulResponse(response):
-		print test_case + "failed"
-		print response
-		return None
-	else:
-		return response
+	try:
+		handle = urllib2.urlopen(request)
+		response = handle.read()
+			
+		if not FlickrApi.isSuccessfulResponse(response):
+			print test_case + " failed"
+			print response
+			return None
+		else:
+			print test_case + " success"
+			return response
+	except HTTPError as e:
+		print e.read()
+		raise
 
-x = Auth('ad7b7b6be35e8a6acbca6eb897c6dc63', '1fcc24be59b57ba4')
-x.authenticate()
+def run_tests(key, secret):
+	x = Auth(key, secret)
+	x.authenticate()
 
-filename = "/Users/riyer/Desktop/Screen Shot 2013-06-28 at 7.36.02 PM.png"
+	filename = "/Users/riyer/Desktop/Screen Shot 2013-06-28 at 7.36.02 PM.png"
 
-f = open(filename, "rb")
-pic = f.read()
+	f = open(filename, "rb")
+	pic = f.read()
 
-u = Uploader("test_pic", pic, x)
-u.addTitle("test_pic")
-u.setPublic()
+	u = Uploader("test_pic", pic, x)
+	u.addTitle("test pic")
+	u.setPublic()
 
-try:
 	req = u.getRequest()
+	try:
+		handle = urllib2.urlopen(req)
+		res = handle.read()
+	except urllib2.HTTPError as e:
+		print e.read()
+		raise
 
-	handle = urllib2.urlopen(req)
-	res = handle.read()
-except urllib2.HTTPError as e:
-	print e.read()
-	raise
+	photo_id = u.getPhotoIdFromResponse(res)
 
-photo_id = u.getPhotoIdFromResponse(res)
+	p = Photosets(x)
+	r = p.createGetListRequest()
+	res = execute(r, "createGetListRequest")
 
-p = Photosets(x)
-r = p.createGetListRequest()
-res = execute(r, "createGetListRequest")
-
-names = p.getPhotosetNames(res)
-print names
-
-try:
+	names = p.getPhotosetNames(res)
+	
 	r = p.createNewSetRequest("test set", "test desc", '9404583236')
 	res = execute(r, "createNewSetRequest")
+
 	set_id = p.getPhotosetIdFromResult(res)
-	print set_id
-except urllib2.HTTPError as e:
-	print e.read()
-	raise
 
-r = p.createAddPhotoRequest(photo_id, set_id)
-execute(r, "createAddPhotoRequest")
+	r = p.createAddPhotoRequest(photo_id, set_id)
+	execute(r, "createAddPhotoRequest")
 
-#r = p.createPhotosetDeleteRequest(set_id)
-#execute(r, "createPhotosetDeleteRequest")
+	r = p.createPhotosetDeleteRequest(set_id)
+	execute(r, "createPhotosetDeleteRequest")
 
+	photos = Photos(x)
+	r = photos.createDeletePhotoRequest(photo_id)
+	execute(r, "createDeletePhotoRequest")
+
+def main():
+	if len(sys.argv) != 3:
+		sys.stderr.write("Usage: " + sys.argv[0] + " <api key> <api secret>\n")
+		sys.exit(1)
+
+	run_tests(sys.argv[1], sys.argv[2])
+
+if __name__ == "__main__":
+	main()
