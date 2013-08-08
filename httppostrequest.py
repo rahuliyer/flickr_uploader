@@ -24,7 +24,7 @@ class HttpPostRequest(HttpRequest):
 		return self.url
 
 	def getRequest(self):
-		return urllib2.Request(self.url, urllib.urlencode(self.params))
+		return urllib2.Request(self.url, HttpRequest.urlencode(self.params))
 	
 	def getSignedRequest(self):
 		self.auth.signRequest(self)

@@ -30,10 +30,14 @@ u = Uploader("test_pic", pic, x)
 u.addTitle("test_pic")
 u.setPublic()
 
-req = u.getRequest()
+try:
+	req = u.getRequest()
 
-handle = urllib2.urlopen(req)
-res = handle.read()
+	handle = urllib2.urlopen(req)
+	res = handle.read()
+except urllib2.HTTPError as e:
+	print e.read()
+	raise
 
 photo_id = u.getPhotoIdFromResponse(res)
 

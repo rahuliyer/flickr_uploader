@@ -105,9 +105,9 @@ class OAuth:
 
 		param_str = ""
 		for i in sorted(params.keys()):
-			param_str += i + "=" + str(params[i]).replace(" ", "%20") + "&"
+			param_str += i + "=" + urllib.quote(str(params[i])) + "&"
 
-		param_str = urllib.quote_plus(param_str[:-1])
+		param_str = urllib.quote(param_str[:-1])
 		base_str += param_str
 
 		key = str(self.appSecret + "&" + token_secret)

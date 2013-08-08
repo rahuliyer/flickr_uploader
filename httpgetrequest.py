@@ -3,9 +3,9 @@
 import urllib
 import urllib2
 
-import httprequest
+from httprequest import HttpRequest
 
-class HttpGetRequest(httprequest.HttpRequest):
+class HttpGetRequest(HttpRequest):
 	def __init__(self, url, params, auth):
 		self.url = url
 		self.params = params
@@ -24,7 +24,7 @@ class HttpGetRequest(httprequest.HttpRequest):
 		return self.url
 
 	def getRequest(self):
-		url = self.url + "?" + urllib.urlencode(self.params)
+		url = self.url + "?" + HttpRequest.urlencode(self.params)
 		return urllib2.Request(url)
 	
 	def getSignedRequest(self):

@@ -52,7 +52,7 @@ class HttpMultipartRequest(HttpRequest):
 		for i in sorted(self.params.keys()):
 			data += "--" + boundary + "\r\n"
 			data += "Content-Disposition: form-data; name=\"" + i + "\"\r\n\r\n"
-			data += urllib.quote_plus(str(self.params[i])) + "\r\n"
+			data += str(self.params[i]) + "\r\n"
 		
 		data += "--" + boundary + "\n"
 		data += "Content-Disposition: form-data; name=\"" + \
