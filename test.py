@@ -21,13 +21,17 @@ def execute(request, test_case):
 		else:
 			print test_case + " success"
 			return response
-	except HTTPError as e:
+	except urllib2.HTTPError as e:
 		print e.read()
 		raise
 
 def run_tests(key, secret):
-	x = Auth(key, secret)
-	x.authenticate()
+	try:
+		x = Auth(key, secret)
+		x.authenticate()
+	except urllib2.HTTPError as e:
+		print e.read()
+		raise
 
 	filename = "/Users/riyer/Desktop/Screen Shot 2013-06-28 at 7.36.02 PM.png"
 

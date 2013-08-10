@@ -30,17 +30,20 @@ class Auth:
 		return raw_input("Enter the verifier on the page: ")
 
 	def authenticate(self):
-		creds = None
+		creds = {}
 		try:
 			creds = self.readAuthToken()
 		except:
 			pass
-
-		if creds != None:
-			self.oauth.setCredentials(creds["token"], creds["secret"])
+		
+		if len(creds.keys()) != 0 and creds["app_id"] == self.appId and \
+				creds["app_secret"]	== self.appSecret:
+			self.oauth.setCredentials(creds["token"], creds["token_secret"])
 		else:
 			self.oauth.authenticate()
-			self.writeToken(self.oauth.getAccessToken(), 
+			self.writeToken(self.appId,
+				self.appSecret,
+				self.oauth.getAccessToken(), 
 				self.oauth.getAccessTokenSecret())
 		print self.oauth.getAccessToken()
 		print self.oauth.getAccessTokenSecret()
@@ -56,8 +59,11 @@ class Auth:
 			self.oauth.getAccessToken(),
 			self.oauth.getAccessTokenSecret())
 
-	def writeToken(self, token, token_secret):
-		d = { "token": token, "secret": token_secret }
+	def writeToken(self, app_id, app_secret, token, token_secret):
+		d = { "app_id": app_id, 
+			"app_secret": app_secret, 
+			"token": token, 
+			"token_secret": token_secret }
 		serialized_str = json.dumps(d)
 
 		try:
@@ -74,12 +80,18 @@ class Auth:
 	def readAuthToken(self):
 		file_path = path.expanduser(AUTH_TOKEN_FILE)
 		if not path.exists(file_path):
-			return None
+			return {}
 
 		try:
 			handle = open(file_path, "r")
 			data = handle.read()
-			return json.loads(data)
+			dict = json.loads(data)
+
+			if "app_id" not in dict or "app_secret" not in dict or \
+					"token" not	in dict or "token_secret" not in dict:
+				return {} 
+
+			return dict
 		except:
 			sys.stderr.write("Error reading token from token file")
 			raise
