@@ -10,6 +10,7 @@ from flickrapi import FlickrApi
 from httpmultipart import HttpMultipartRequest
 from uploader import Uploader
 from photos import Photos
+from workqueue import WorkQueue
 
 def get_photos(dir):
 	files = os.listdir(dir)
@@ -41,7 +42,6 @@ def upload_photo(photo, auth):
 			res = execute(req)
 			photo_id = u.getPhotoIdFromResponse(res)
 
-			print "Successfully uploaded " + photo
 			return photo_id
 		except urllib2.HTTPError as e:
 			pass
@@ -54,7 +54,6 @@ def add_to_set(set_id, photo_id, set_controller):
 		try:
 			req = set_controller.createAddPhotoRequest(photo_id, set_id)
 			execute(req)
-			print "Successfully added " + photo_id + " to set"
 
 			success = True
 		except urllib2.HTTPError as e:
@@ -68,15 +67,18 @@ def create_set(set_name, photo_id, set_controller):
 				set_name, photo_id)
 			res = execute(req)
 			set_id = set_controller.getPhotosetIdFromResult(res)
-			print "Successfully created set " + set_name
-
+			
 			return set_id
 		except urllib2.HTTPError as e:
 			pass
 
-def upload_and_add(photo, set_id, auth, set_controller):
+def upload_and_add(photo, set_id, auth, set_controller, ui_wq):
 	photo_id = upload_photo(photo, auth)
 	add_to_set(set_id, photo_id, set_controller)
+	ui_wq.add("Successfully uploaded " + photo)
+
+def print_status(str):
+	print str
 
 def upload_photos(set, photos, key, secret):
 	try:
@@ -91,8 +93,23 @@ def upload_photos(set, photos, key, secret):
 	photo_id = upload_photo(photos[0], auth)
 	set_id = create_set(set, photo_id, set_controller)
 
+	ui_wq = WorkQueue(print_status, num_workers = 1)
+	ui_wq.add("Successfully created set " + set)
+	ui_wq.add("Successfully uploaded " + photos[0])
+
+	wq = WorkQueue(upload_and_add, 
+		num_workers = 16, 
+		max_queue_size = 50, 
+		set_id= set_id, 
+		auth = auth, 
+		set_controller = set_controller,
+		ui_wq = ui_wq)
+
 	for photo in photos[1:]:
-		upload_and_add(photo, set_id, auth, set_controller)
+		wq.add(photo)
+	
+	wq.done()
+	ui_wq.done()
 
 def main():
 	if (len(sys.argv) != 5):
