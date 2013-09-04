@@ -72,6 +72,17 @@ def create_set(set_name, photo_id, set_controller):
 		except urllib2.HTTPError as e:
 			pass
 
+def get_set_list(set_controller):
+	while True:
+		try:
+			req = set_controller.createGetListRequest()
+			res = execute(req)
+			sets = set_controller.getPhotosetList(res)
+			
+			return sets
+		except urllib2.HTTPError as e:
+			pass
+
 def upload_and_add(photo, set_id, auth, set_controller, ui_wq):
 	photo_id = upload_photo(photo, auth)
 	add_to_set(set_id, photo_id, set_controller)
@@ -90,12 +101,42 @@ def upload_photos(set, photos, key, secret):
 
 	set_controller = Photosets(auth)
 
-	photo_id = upload_photo(photos[0], auth)
-	set_id = create_set(set, photo_id, set_controller)
+	# Get the list of sets to see if a set with the given name exists
+	sets = get_set_list(set_controller)
+	found_set_id = 0
+	for id in sets:
+		if set.lower() == sets[id].lower():
+			found_set_id = id
+			break
 
+	# Work queue to print upload status
 	ui_wq = WorkQueue(print_status, num_workers = 1)
-	ui_wq.add("Successfully created set " + set)
-	ui_wq.add("Successfully uploaded " + photos[0])
+
+	create = True
+	set_id = 0
+	start_idx = 1
+	if found_set_id != 0:
+		print "Found set with name " + sets[found_set_id] + \
+			". Add to existing set? (y/n/Q)"
+		reply = raw_input()
+
+		if reply == 'y':
+			create = False
+			set_id = found_set_id
+			start_idx = 0
+		elif reply == 'n':
+			start_idx = 1
+		else:
+			return
+	
+	if create == True:
+		photo_id = upload_photo(photos[0], auth)
+		set_id = create_set(set, photo_id, set_controller)
+
+		ui_wq.add("Successfully created set " + set)
+		ui_wq.add("Successfully uploaded " + photos[0])
+
+	assert set_id
 
 	wq = WorkQueue(upload_and_add, 
 		num_workers = 16, 
@@ -105,7 +146,7 @@ def upload_photos(set, photos, key, secret):
 		set_controller = set_controller,
 		ui_wq = ui_wq)
 
-	for photo in photos[1:]:
+	for photo in photos[start_idx:]:
 		wq.add(photo)
 	
 	wq.done()
