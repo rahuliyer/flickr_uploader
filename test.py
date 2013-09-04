@@ -56,8 +56,8 @@ def run_tests(key, secret):
 	r = p.createGetListRequest()
 	res = execute(r, "createGetListRequest")
 
-	names = p.getPhotosetNames(res)
-	
+	names = p.getPhotosetList(res)
+
 	r = p.createNewSetRequest("test set", "test desc", '9404583236')
 	res = execute(r, "createNewSetRequest")
 

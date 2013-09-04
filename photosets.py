@@ -12,16 +12,16 @@ class Photosets:
 		return self.flickrapi.createRestGetRequest(
 			"flickr.photosets.getList", {}, True);
 
-	def getPhotosetNames(self, response):
+	def getPhotosetList(self, response):
 		if not flickrapi.FlickrApi.isSuccessfulResponse(response):
 			return None
 
 		res = json.loads(response)
-		names = []
+		sets = {}
 		for i in res['photosets']['photoset']:
-			names.append(i['title']['_content'])
-		
-		return names
+			sets[i['id']] = i['title']['_content']
+
+		return sets
 		
 	def createNewSetRequest(self, name, description, primary_photo_id):
 		return self.flickrapi.createRestPostRequest(
