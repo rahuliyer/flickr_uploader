@@ -112,7 +112,7 @@ def create_set_if_needed(set, photo_id, set_controller):
 	set_id = 0
 
 	for id in sets:
-		if set.lower() == sets[id].lower():
+		if set == sets[id]:
 			found_set_id = id
 			break
 
@@ -124,6 +124,7 @@ def create_set_if_needed(set, photo_id, set_controller):
 		if reply == 'y':
 			 res["set_id"] = found_set_id
 			 res["msg"] = "Using existing set " + sets[found_set_id]
+			 add_to_set(found_set_id, photo_id, set_controller)
 			 return res
 			 
 	res["set_id"] = create_set(set, photo_id, set_controller)
