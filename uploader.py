@@ -8,7 +8,7 @@ class Uploader:
 	def __init__(self, filename, data, auth):
 		self.auth = auth
 		self.data = data
-		self.params = {}
+		self.params = {"is_public": 0}
 		self.filename = filename
 
 	def addTitle(self, title):
